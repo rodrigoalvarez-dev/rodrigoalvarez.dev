@@ -1,0 +1,78 @@
+name: rodrigoalvarez
+
+services:
+  laravel.test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        WWWUSER: '${WWWUSER}'
+        WWWGROUP: '${WWWGROUP}'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      WWWGROUP: '${WWWGROUP}'
+      LARAVEL_SAIL: 1
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:80"
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    command: >
+      bash -lc '
+        if [ ! -f /var/www/html/artisan ]; then
+          echo "Laravel not found in /var/www/html" >&2
+          sleep 3600
+        fi
+        exec apache2-foreground
+      '
+    networks:
+      - rad
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rad
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - rad
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 10
+      timeout: 5s
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: app
+      RABBITMQ_DEFAULT_PASS: app
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+    - rad
+
+networks:
+  rad:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:

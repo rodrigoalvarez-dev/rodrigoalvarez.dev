@@ -9,6 +9,7 @@
 /resources/js/routes
 /resources/js/wayfinder
 /storage/*.key
+/storage/framework/views
 /storage/pail
 /vendor
 .env

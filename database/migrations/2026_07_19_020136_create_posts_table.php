@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
+            $table->string('hero_image');
             $table->string('title');
-            $table->string('slug');
-            $table->string('image');
             $table->text('content');
+            $table->string('slug');
+            $table->text('meta_title');
+            $table->text('meta_description');
             $table->boolean('published')->default(false);
             $table->dateTime('published_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamps();

@@ -25,4 +25,10 @@ class Page extends Model
     {
         $query->where('published', true);
     }
+
+    #[Scope]
+    protected function inMenu(Builder $query): void
+    {
+        $query->where('in_menu', true);
+    }
 }
